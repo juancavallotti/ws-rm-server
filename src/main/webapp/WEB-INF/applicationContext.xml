@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:wsa="http://cxf.apache.org/ws/addressing"
+       xmlns:wsrm-policy="http://schemas.xmlsoap.org/ws/2005/02/rm/policy"
+       xmlns:wsrm-mgr="http://cxf.apache.org/ws/rm/manager"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+          http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd/spring-spring-context-3.1.xsd-3.1.2.RELEASE.xsd
+          http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+          http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+          http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+          http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+          http://schemas.xmlsoap.org/ws/2005/02/rm/policy http://schemas.xmlsoap.org/ws/2005/02/rm/wsrm-policy.xsd
+          http://cxf.apache.org/ws/rm/manager http://cxf.apache.org/schemas/configuration/wsrm-manager.xsd
+">
+    
+    <!-- import cxf webservices this is bundled with the cxf jars -->
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+    
+    <cxf:bus>
+        <cxf:features>
+            <wsa:addressing/>
+            <wsrm-mgr:reliableMessaging>
+                <wsrm-policy:RMAssertion>
+                    <wsrm-policy:BaseRetransmissionInterval Milliseconds="4000"/>           
+                    <wsrm-policy:AcknowledgementInterval Milliseconds="2000"/>          
+                </wsrm-policy:RMAssertion>
+                <wsrm-mgr:destinationPolicy>
+                    <wsrm-mgr:acksPolicy intraMessageThreshold="0" />
+                </wsrm-mgr:destinationPolicy>
+            </wsrm-mgr:reliableMessaging>
+        </cxf:features>            
+
+    </cxf:bus>
+    
+    <jaxws:endpoint 
+        id="mywebservice" 
+        implementor="#webserviceImpl" 
+        address="/myws">
+    </jaxws:endpoint>
+    
+    
+    <jaxrs:server id="myrestservice" address="/rest">
+        <jaxrs:serviceBeans>
+            <ref bean="webserviceImpl" />
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+    
+    <bean id="webserviceImpl" class="com.mulesoft.support.cxfdemo.MyWebServiceImpl" /> 
+    
+</beans>
